@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "target": "DiPlay (com.shihab.diplay)",
+  "verified_versions": [
+    "Legacy Geely V044",
+    "0.2.21"
+  ],
+  "notes": "Apply to an apktool-decoded project. Every patch is anchor-verified; the applier aborts if a patch does not match exactly the expected number of times.",
+  "patches": [
+    {
+      "id": "hotspot-mode-keep-existing-wifi-1",
+      "description": "Stop forcing EXISTING_WIFI back to MANUAL in v(Context).",
+      "file": "smali/com/shilapi/xcertplay/AirPlayPersistence.smali",
+      "type": "replace",
+      "search": "    if-ne v2, v3, :cond_4",
+      "replace": "    if-eq v2, v3, :cond_4",
+      "count": 1
+    },
+    {
+      "id": "hotspot-mode-keep-existing-wifi-2",
+      "description": "Stop forcing EXISTING_WIFI back to MANUAL in z(Context, WirelessHotspotMode).",
+      "file": "smali/com/shilapi/xcertplay/AirPlayPersistence.smali",
+      "type": "replace",
+      "search": "    if-ne p1, v0, :cond_1",
+      "replace": "    if-eq p1, v0, :cond_1",
+      "count": 1
+    },
+    {
+      "id": "radio-name-fallback-controller",
+      "description": "Fall back to BluetoothAdapter.getName() when the Geely hop returns null (requireCarHopRadioName).",
+      "file": "smali/com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+      "type": "insert_before",
+      "method": ".method public final F()V",
+      "anchor": "    sget-object v0, Lcom/shilapi/xcertplay/carhop/CarBluetoothHops;->a:Lcom/shilapi/xcertplay/carhop/CarBluetoothHops;",
+      "insert": "    invoke-static {}, Landroid/bluetooth/BluetoothAdapter;->getDefaultAdapter()Landroid/bluetooth/BluetoothAdapter;\n    move-result-object v0\n    if-eqz v0, :cond_adapter_name_empty\n    invoke-virtual {v0}, Landroid/bluetooth/BluetoothAdapter;->getName()Ljava/lang/String;\n    move-result-object v0\n    if-eqz v0, :cond_adapter_name_empty\n    return-void\n    :cond_adapter_name_empty\n",
+      "count": 1
+    },
+    {
+      "id": "radio-name-fallback-resolver",
+      "description": "Same fallback in WirelessIdentityResolver.resolveRadioName.",
+      "file": "smali/com/shilapi/xcertplay/orchestration/WirelessIdentityResolver.smali",
+      "type": "insert_before",
+      "method": ".method public static b(Lcom/shilapi/xcertplay/transport/Iap2BluetoothLink;Lcom/shilapi/xcertplay/transport/WirelessBluetoothHop;Ljava/lang/String;)Ljava/lang/String;",
+      "anchor": "    invoke-static {p1}, Lcom/shilapi/xcertplay/orchestration/WirelessIdentityResolver;->a(Lcom/shilapi/xcertplay/transport/WirelessBluetoothHop;)Ljava/io/IOException;",
+      "insert": "    invoke-static {}, Landroid/bluetooth/BluetoothAdapter;->getDefaultAdapter()Landroid/bluetooth/BluetoothAdapter;\n    move-result-object v0\n    if-eqz v0, :cond_adapter_name_empty\n    invoke-virtual {v0}, Landroid/bluetooth/BluetoothAdapter;->getName()Ljava/lang/String;\n    move-result-object v0\n    if-eqz v0, :cond_adapter_name_empty\n    return-object v0\n    :cond_adapter_name_empty\n",
+      "count": 1
+    }
+  ]
+}

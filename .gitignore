@@ -1,0 +1,38 @@
+# Binaries and vendor artifacts
+*.apk
+*.jar
+*.so
+*.odex
+*.oat
+*.img
+*.bin
+*.zip
+
+# Signing material — never commit
+*.pk8
+*.pem
+*.keystore
+*.jks
+*.x509
+
+# Device dumps and logs
+*.log
+logcat*.txt
+*_log.txt
+dumpsys*.txt
+tombs/
+fw/
+carlibs/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

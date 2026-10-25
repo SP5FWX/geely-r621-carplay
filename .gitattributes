@@ -1,0 +1,19 @@
+# Normalize to LF in the repository; do not rewrite smali or scripts.
+* text=auto eol=lf
+
+*.c      text eol=lf
+*.h      text eol=lf
+*.py     text eol=lf
+*.sh     text eol=lf
+*.md     text eol=lf
+*.json   text eol=lf
+*.xml    text eol=lf
+*.yml    text eol=lf
+*.properties text eol=lf
+*.smali  text eol=lf
+
+# Binary artifacts that must never be converted.
+*.png    binary
+*.jpg    binary
+*.so     binary
+*.apk    binary

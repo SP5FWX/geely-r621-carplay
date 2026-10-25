@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<!--
+  DiPlay 配置模板（/data/data/com.shihab.diplay/shared_prefs/xcertplay_airplay.xml）
+
+  使用前替换：
+    YOUR_WIFI_SSID      目标 Wi-Fi 名称
+    YOUR_WIFI_PASSWORD  目标 Wi-Fi 密码
+
+  写入后必须：
+    adb shell am force-stop com.shihab.diplay
+    adb shell su -c 'chown <uid>:<uid> /data/data/com.shihab.diplay/shared_prefs/xcertplay_airplay.xml'
+    adb shell su -c 'chmod 660 /data/data/com.shihab.diplay/shared_prefs/xcertplay_airplay.xml'
+
+  wireless_hotspot_mode 取值：
+    MANUAL              车机自开热点（iPhone 连车机）
+    EXISTING_WIFI       车机与 iPhone 连同一个外部 Wi-Fi
+    LOCAL_ONLY_HOTSPOT  仅本地热点
+-->
+<map>
+    <boolean name="wireless_enabled" value="true" />
+    <string name="wireless_hotspot_mode">MANUAL</string>
+    <string name="existing_wifi_ssid">YOUR_WIFI_SSID</string>
+    <string name="existing_wifi_passphrase">YOUR_WIFI_PASSWORD</string>
+    <string name="mfi_target">LOCAL</string>
+</map>

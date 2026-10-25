@@ -1,0 +1,19 @@
+Geely R621 · DiPlay Wireless CarPlay Enablement
+Copyright 2026 The geely-r621-carplay Contributors
+
+This product includes software developed as part of the Android Open Source
+Project (https://source.android.com/).
+
+Portions of the design and interface definitions are derived from AOSP
+Bluedroid, Copyright (C) 2012-2015 The Android Open Source Project,
+licensed under the Apache License, Version 2.0.
+
+This project does not redistribute:
+  - DiPlay (com.shihab.diplay) binaries, assets, or MFi credentials
+  - Android platform signing keys
+  - Prebuilt AOSP system images or shared libraries
+
+Trademarks and product names (Geely, ECARX, GKUI, DiPlay, iPhone, CarPlay)
+are the property of their respective owners and are used here only for
+interoperability description. This project is not affiliated with, endorsed
+by, or supported by any of those companies.

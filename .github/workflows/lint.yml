@@ -1,0 +1,28 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Byte-compile all Python
+        run: python -m compileall -q .
+      - name: Check for secrets and personal identifiers
+        run: python tools/check_secrets.py
+      - name: Validate patch spec JSON
+        run: python -c "import json;json.load(open('diplay/patches/patches.json'))"
+
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax-check build script
+        run: bash -n hal/build.sh

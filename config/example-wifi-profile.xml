@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+  Windows WLAN profile example for connecting a PC to the head unit hotspot.
+
+  Replace:
+    YOUR_HOTSPOT_SSID  hotspot name shown on the head unit
+    YOUR_HOTSPOT_KEY   hotspot password
+
+  Import:
+    netsh wlan add profile filename="example-wifi-profile.xml" user=all
+    netsh wlan connect name="YOUR_HOTSPOT_SSID"
+
+  Why this is useful: while the head unit runs in AP mode, the PC must join
+  that AP to reach adb on 192.168.43.1:5555.
+-->
+<WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
+    <name>YOUR_HOTSPOT_SSID</name>
+    <SSIDConfig>
+        <SSID>
+            <name>YOUR_HOTSPOT_SSID</name>
+        </SSID>
+    </SSIDConfig>
+    <connectionType>ESS</connectionType>
+    <connectionMode>manual</connectionMode>
+    <MSM>
+        <security>
+            <authEncryption>
+                <authentication>WPA2PSK</authentication>
+                <encryption>AES</encryption>
+                <useOneX>false</useOneX>
+            </authEncryption>
+            <sharedKey>
+                <keyType>passPhrase</keyType>
+                <protected>false</protected>
+                <keyMaterial>YOUR_HOTSPOT_KEY</keyMaterial>
+            </sharedKey>
+        </security>
+    </MSM>
+</WLANProfile>
