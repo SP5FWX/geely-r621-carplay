@@ -227,3 +227,36 @@ apksigner sign --key platform.pk8 --cert platform.x509.pem --out DiPlay_signed.a
 ## License
 
 [Apache-2.0](LICENSE)
+
+---
+
+## English summary
+
+**Geely R621 (ECARX, MT6735, Android 5.1) — iPhone wireless CarPlay via DiPlay.**
+
+The stock head unit ships a private Barrot/IVT Bluetooth stack that never
+registers Android's `BluetoothAdapter`, so DiPlay cannot pair or negotiate a
+wireless session. This project replaces that stack with AOSP 5.1 Bluedroid:
+
+1. **HAL** — `bt_vendor_mtk.c` implements the Android 5.1
+   `BLUETOOTH_VENDOR_LIB_INTERFACE` for the MT6620 UART, plus a verified
+   2-byte patch (`0x4999A: 44 B1 -> 08 E0`) that forces `bte_main_enable()`.
+2. **Framework app** — AOSP `com.android.bluetooth` with
+   `android:persistent="true"`, platform-signed, so it runs as UID 1002 and
+   may send the protected `BOND_STATE_CHANGED` broadcast.
+3. **DiPlay patches** — three anchor-checked smali edits: stop forcing
+   `EXISTING_WIFI` back to `MANUAL`, and fall back to
+   `BluetoothAdapter.getName()` when the Geely hop returns null.
+4. **Tooling** — head-unit discovery, backup-first deployment, health report,
+   secret scan.
+
+Verified end to end on a real vehicle: Bluetooth `state: 12`, iPhone pairing,
+wireless CarPlay session established.
+
+Everything here is Apache-2.0. No DiPlay binaries, MFi credentials, AOSP
+prebuilts, or signing keys are redistributed.
+
+See [`docs/architecture.md`](docs/architecture.md),
+[`docs/bluedroid.md`](docs/bluedroid.md),
+[`docs/diplay.md`](docs/diplay.md), and
+[`docs/rollback.md`](docs/rollback.md).
