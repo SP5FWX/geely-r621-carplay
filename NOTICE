@@ -17,3 +17,16 @@ Trademarks and product names (Geely, ECARX, GKUI, DiPlay, iPhone, CarPlay)
 are the property of their respective owners and are used here only for
 interoperability description. This project is not affiliated with, endorsed
 by, or supported by any of those companies.
+
+Provenance of hal/bt_vendor_mtk.c
+---------------------------------
+This vendor library is an independent, clean-room implementation written for
+this project. It was not decompiled, extracted, or adapted from any MediaTek
+proprietary binary or leaked source tree. The struct layouts in it mirror the
+public, Apache-2.0-licensed header
+hardware/libhardware/include/hardware/bt_vendor.h (AOSP 5.1), which any vendor
+library must match to satisfy the published Bluedroid ABI. The only
+platform-specific fact used is the MTK HCI command number 0xFC1A and its
+least-significant-byte-first parameter order, which is protocol behavior rather
+than copyrightable expression. No MediaTek code, comments, identifiers, or
+lookup tables are reproduced here.
