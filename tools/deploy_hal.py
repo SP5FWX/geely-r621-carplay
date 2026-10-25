@@ -58,10 +58,19 @@ class Runner:
         self.target = target
         self.apply = apply
 
+    def host(self, *args: str, timeout: int = 60) -> str:
+        """Run an adb host command (connect/root/kill-server), no -s."""
+        print("    $ adb " + " ".join(args))
+        proc = subprocess.run([ADB, *args], capture_output=True, timeout=timeout)
+        out = (proc.stdout + proc.stderr).decode("utf-8", "ignore").strip()
+        if out:
+            print("      " + out.replace("\n", "\n      ")[:1200])
+        return out
+
     def adb(self, *args: str, timeout: int = 120) -> str:
-        cmd = [ADB, "-s", self.target, *args]
-        print("    $ " + " ".join(cmd[3:]) if False else "    $ adb " + " ".join(args))
-        proc = subprocess.run(cmd, capture_output=True, timeout=timeout)
+        print("    $ adb -s " + self.target + " " + " ".join(args))
+        proc = subprocess.run([ADB, "-s", self.target, *args],
+                              capture_output=True, timeout=timeout)
         out = (proc.stdout + proc.stderr).decode("utf-8", "ignore").strip()
         if out:
             print("      " + out.replace("\n", "\n      ")[:1200])
@@ -82,6 +91,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--config", default="config/local.properties")
     ap.add_argument("--target", help="override target ip:5555")
+    ap.add_argument("--bdaddr", help="override bdaddr, e.g. AA:BB:CC:DD:EE:FF")
     ap.add_argument("--apply", action="store_true", help="actually write")
     ap.add_argument("--skip-reboot", action="store_true")
     args = ap.parse_args()
@@ -94,7 +104,7 @@ def main() -> int:
     cfg = load_props(cfg_path)
 
     target = args.target or cfg.get("target", "")
-    bdaddr = cfg.get("bdaddr", "")
+    bdaddr = args.bdaddr or cfg.get("bdaddr", "")
     aosp_dir = Path(cfg.get("aosp_dir", "./vendor/aosp51"))
 
     if not target:
@@ -122,12 +132,12 @@ def main() -> int:
 
     runner = Runner(target, args.apply)
 
-    runner.adb("connect", target, timeout=40)
+    runner.host("connect", target, timeout=40)
     ident = runner.shell("id", timeout=30)
     if "uid=0" not in ident:
         print("\n[!] not root. Trying `adb root` ...", file=sys.stderr)
-        runner.adb("root", timeout=40)
-        runner.adb("connect", target, timeout=40)
+        runner.host("root", timeout=40)
+        runner.host("connect", target, timeout=40)
         ident = runner.shell("id", timeout=30)
         if "uid=0" not in ident:
             print("error: no root shell. Enable adb root on the unit.", file=sys.stderr)
