@@ -57,6 +57,7 @@ LEGACY_FILES=(
   /system/bin/brlinkd
   /system/vendor/lib/hw/bluetooth.blueangel.so
   /system/app/Bluetooth/Bluetooth.apk
+  /system/app/Bluetooth/lib/arm/libbluetooth_jni.so
   /system/lib/libbluetooth_jni.so
 )
 
