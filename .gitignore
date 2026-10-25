@@ -17,6 +17,8 @@
 
 # Device dumps and logs
 *.log
+logs/
+.installed.list
 logcat*.txt
 *_log.txt
 dumpsys*.txt

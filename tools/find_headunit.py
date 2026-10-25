@@ -88,7 +88,13 @@ def main() -> int:
                     help="network to scan, e.g. 192.168.43.0/24 (repeatable)")
     ap.add_argument("--timeout", type=float, default=0.7)
     ap.add_argument("--workers", type=int, default=192)
+    ap.add_argument("--quiet", action="store_true",
+                    help="print only `ip:5555` lines (for scripts)")
     args = ap.parse_args()
+
+    def note(*parts: object) -> None:
+        if not args.quiet:
+            print(*parts)
 
     networks: list[ipaddress.IPv4Network] = []
     for cidr in args.cidr:
@@ -101,7 +107,7 @@ def main() -> int:
     if not networks:
         for ip in local_ipv4():
             networks.append(ipaddress.ip_network(f"{ip}/24", strict=False))
-            print(f"[*] local address {ip} -> scanning {ip}/24")
+            note(f"[*] local address {ip} -> scanning {ip}/24")
 
     if not networks:
         print("error: could not determine a local network; use --cidr", file=sys.stderr)
@@ -111,24 +117,26 @@ def main() -> int:
     for net in networks:
         targets.extend(str(h) for h in net.hosts())
 
-    print(f"[*] probing {len(targets)} address(es) on tcp/{PORT} ...")
+    note(f"[*] probing {len(targets)} address(es) on tcp/{PORT} ...")
     found: list[str] = []
     with futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
         for result in pool.map(lambda ip: probe(ip, args.timeout), targets):
             if result and result not in found:
                 found.append(result)
-                print(f"[+] {result}:{PORT}")
+                print(f"{result}:{PORT}" if args.quiet else f"[+] {result}:{PORT}")
 
     if not found:
-        print("\n[!] no head unit found.")
-        print("    - Is the head unit on the same L2 network as this PC?")
-        print("    - Is wireless ADB enabled? (often a dialer code on the unit)")
-        print("    - Some units only expose ADB after `adb tcpip 5555` over USB.")
+        if not args.quiet:
+            print("\n[!] no head unit found.")
+            print("    - Is the head unit on the same L2 network as this PC?")
+            print("    - Is wireless ADB enabled? (often a dialer code on the unit)")
+            print("    - Some units only expose ADB after `adb tcpip 5555` over USB.")
         return 1
 
-    print("\nNext:")
-    for ip in found:
-        print(f"  adb connect {ip}:{PORT}")
+    if not args.quiet:
+        print("\nNext:")
+        for ip in found:
+            print(f"  adb connect {ip}:{PORT}")
     return 0
 
 

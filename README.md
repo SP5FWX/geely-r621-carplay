@@ -69,7 +69,53 @@ vendor 库，再对 DiPlay 做最小 smali 补丁。原车 IVT 栈完整备份�
 
 ---
 
-## 快速开始
+## 一键安装 / 一键恢复
+
+先准备配置（只需一次）：
+
+```bash
+cp config/example.properties config/local.properties
+# 编辑 target / bdaddr / aosp_dir
+```
+
+然后：
+
+```bash
+./install.sh              # 预演：打印完整计划并做备份，不写 /system
+./install.sh --apply      # 安装：备份 → 构建 → 打补丁 → 部署 → 重启
+
+./rollback.sh --list      # 只读：看看备份里到底有什么
+./rollback.sh --apply     # 一键回滚原车 Barrot/IVT 蓝牙栈
+```
+
+**设计原则（与 `tools/deploy_hal.py` 一致）**
+
+- `install.sh` **默认是 dry-run**，必须显式 `--apply` 才会写设备；
+- 每个将被覆盖的文件先落到 `$BACKUP/files/*.orig`，并登记 `manifest.txt`（路径+权限）；
+- `rollback.sh` 只按清单复原；对"安装时本来不存在"的文件才删除，且删除前先
+  拷一份到 `$BACKUP/replaced/` 保险库；
+- 清单为空时 `rollback.sh` 会直接拒绝执行——没有备份就不做不可逆操作。
+
+| 场景 | 命令 |
+|---|---|
+| 只做备份（改系统前先跑） | `./install.sh --backup-only` |
+| 已有打好补丁的 HAL | `./install.sh --apply --hal-so bt_default_patched.so` |
+| 现场构建 + 打补丁 | `./install.sh --apply --stock-so /path/to/aosp/bluetooth.default.so` |
+| 不自动重启 | `./install.sh --apply --skip-reboot` |
+| 连 DiPlay 一起还原 | `./rollback.sh --apply --restore-diplay` |
+| 无人值守回滚 | `./rollback.sh --apply --yes` |
+
+日志写到 `logs/install-*.log`、`logs/rollback-*.log`（已被 `.gitignore` 忽略）。
+两个脚本都会把执行的每条 adb 命令打印出来，出问题按日志逐条对账即可。
+
+> 需要说明：本项目**不打包任何二进制**，`install.sh` 只是把你自己的 AOSP 预编译件
+> 和本机编译产物推送到你自己的车机上，因此仓库本身不含可分发的固件或厂商代码。
+
+---
+
+## 手动步骤（与一键脚本等价）
+
+如果你更愿意逐步执行，或想先核对每一步的作用：
 
 ### 0. 前置条件
 
@@ -151,6 +197,8 @@ apksigner sign --key platform.pk8 --cert platform.x509.pem --out DiPlay_signed.a
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── SECURITY.md
+├── install.sh                  一键安装（默认 dry-run，--apply 才写设备）
+├── rollback.sh                 一键回滚（按 manifest 复原）
 ├── docs/
 │   ├── architecture.md         双蓝牙栈架构与选型分析
 │   ├── bluedroid.md            Bluedroid 启动链路、HAL ABI、HCI 命令
@@ -205,6 +253,19 @@ apksigner sign --key platform.pk8 --cert platform.x509.pem --out DiPlay_signed.a
 
 ---
 
+## 法律声明
+
+- 本项目是**个人技术研究与互操作性（interoperability）项目**，**非官方项目**，与吉利汽车、
+  ECARX、Apple、联发科（MediaTek）及 DiPlay 作者均**无任何隶属、授权或背书关系**。
+- "Geely"、"CarPlay"、"DiPlay" 等名称仅用于**描述兼容对象**（nominal / descriptive use），
+  相关商标归各自权利人所有。
+- 本项目**不包含、不分发**任何第三方二进制、固件、APK、MFi 证书或签名密钥；
+  `install.sh` 只对**你本人拥有**的设备、使用**你自行获取**的 AOSP 预编译件执行操作。
+- 请在**你拥有所有权或已获授权**的车辆上使用。因修改系统分区导致的保修失效、功能异常或
+  设备损坏，由操作者自行承担。
+- 请勿将本项目用于**商业分发、收费改装或绕过付费服务**；此类用法不在本项目许可与
+  免责范围之内，且可能触及当地法律（包括技术保护措施相关条款）。
+
 ## 免责声明
 
 本项目仅供**个人车辆的技术研究与互操作目的**使用。修改系统分区可能导致车机变砖、失去保修、
@@ -247,8 +308,14 @@ wireless session. This project replaces that stack with AOSP 5.1 Bluedroid:
 3. **DiPlay patches** — three anchor-checked smali edits: stop forcing
    `EXISTING_WIFI` back to `MANUAL`, and fall back to
    `BluetoothAdapter.getName()` when the Geely hop returns null.
-4. **Tooling** — head-unit discovery, backup-first deployment, health report,
-   secret scan.
+4. **Tooling** — one-click `install.sh` (dry-run by default) and
+   `rollback.sh` (manifest-driven restore), plus head-unit discovery,
+   backup-first deployment, health report and secret scan.
+
+```bash
+./install.sh --apply     # backup -> build -> patch -> deploy -> reboot
+./rollback.sh --apply    # put the stock Barrot/IVT stack back
+```
 
 Verified end to end on a real vehicle: Bluetooth `state: 12`, iPhone pairing,
 wireless CarPlay session established.
