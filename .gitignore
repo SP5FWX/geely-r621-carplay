@@ -24,6 +24,10 @@ tombs/
 fw/
 carlibs/
 
+# Build output
+dist/
+build/
+
 # Python
 __pycache__/
 *.py[cod]
